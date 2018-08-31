@@ -80,6 +80,16 @@ def overhoor():
         print(str(i + 1) + ". " + recentelijsten[i])
         i += 1
     print("\n")
+
+    print("Kies een getal van een recente file of geef een filenaam op")
+    keuze = input()
+    if keuze.isdigit():
+        int(keuze) -= 1
+    elif os.path.isfile(keuze):
+        print("Hier komt nog iets")
+    else:
+        print("We hebben je keuze niet kunnen vinden")
+
     main()
 
 
@@ -102,7 +112,7 @@ def addrecentelijst(naam):
 
 
 def leesrecentelijstenfile():
-    recentelijsten = []
+    recentelijsten.clear()
 
     if os.path.isfile(recentelijstenfilenaam):
         recentelijstenfile = open(recentelijstenfilenaam)
