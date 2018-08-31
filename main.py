@@ -1,6 +1,5 @@
 import os
 
-
 EXTENSIE = '.wrd'
 MAX_WOORDLENGTE = 20
 SCHEIDER = '='
@@ -13,6 +12,10 @@ NIEUWE_LIJST = 'n'
 OVERHOREN = 'o'
 WIJZIGEN = "e"
 STOPPEN = 'q'
+
+# acties in edit menu
+VERWIJDEREN = "d"
+
 
 
 recentelijstenfilenaam = "recentelijsten.lists"
@@ -53,7 +56,8 @@ def nieuwelijst():
         else:
             print("Je hebt iets niet goed opgegeven!")
 
-    print("Onder welke naam wil je de lijst opslaan? \nType \"NEE\" om de lijst niet op te slaan \nVergeet niet " + EXTENSIE + " acter je filenaam te zetten!")
+    print(
+        "Onder welke naam wil je de lijst opslaan? \nType \"NEE\" om de lijst niet op te slaan \nVergeet niet " + EXTENSIE + " acter je filenaam te zetten!")
     filename = input("naam: ")
     if filename != "NEE":
         file = open(filename, 'w')
@@ -92,8 +96,14 @@ def overhoor():
         with open(recentelijstenfilenaam) as recentelijstenfile:
             bestandsdata = recentelijstenfile.read().split("\n")
 
-        if os.path.isfile(bestandsdata[keuze]):
-            gekozenfile = bestandsdata[keuze]
+        if keuze <= len(bestandsdata):
+            if keuze >= 0:
+                if os.path.isfile(bestandsdata[keuze]):
+                    gekozenfile = bestandsdata[keuze]
+                else:
+                    print("[ERROR] 404 file not found")
+            else:
+                print("[ERROR] 404 file not found")
         else:
             print("[ERROR] 404 file not found")
 
