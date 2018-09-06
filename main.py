@@ -14,8 +14,9 @@ WIJZIGEN = "e"
 STOPPEN = 'q'
 
 # acties in edit menu
-VERWIJDEREN = "d"
-
+REGELSVERWIJDEREN = "d"
+FILEVERWIJDEREN = "del"
+REGELSTOEVOEGEN = "a"
 
 
 recentelijstenfilenaam = "recentelijsten.lists"
@@ -35,6 +36,7 @@ def main():
         afscheid()
     else:
         print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
+    if gekozenactie != STOPPEN:
         main()
 
 
@@ -74,44 +76,9 @@ def nieuwelijst():
 
 
 def overhoor():
-    leesrecentelijstenfile()
+    print("Welke lijst wil je laten overhoren?\n")
 
-    print("Welke lijst wil je laten overhoren?\n" +
-          "Recente lijsten: ")
-
-    i = 0
-    for item in recentelijsten:
-        print(str(i + 1) + ". " + recentelijsten[i])
-        i += 1
-
-    print("Kies een getal van een recente file of geef een filenaam op")
-
-    keuze = input()
-    gekozenfile = ""
-
-    if keuze.isdigit():
-        keuze = int(keuze)
-        keuze -= 1
-
-        with open(recentelijstenfilenaam) as recentelijstenfile:
-            bestandsdata = recentelijstenfile.read().split("\n")
-
-        if keuze <= len(bestandsdata):
-            if keuze >= 0:
-                if os.path.isfile(bestandsdata[keuze]):
-                    gekozenfile = bestandsdata[keuze]
-                else:
-                    print("[ERROR] 404 file not found")
-            else:
-                print("[ERROR] 404 file not found")
-        else:
-            print("[ERROR] 404 file not found")
-
-    elif os.path.isfile(keuze):
-        gekozenfile = keuze
-
-    else:
-        print("We hebben je keuze niet kunnen vinden")
+    gekozenfile = printrecentelijsten(True)
 
     if gekozenfile != "":
         print("We gaan nu " + gekozenfile + " overhoren.")
@@ -148,7 +115,82 @@ def overhoor():
 
 
 def wijzigen():
-    print("dip")
+
+    def regelstoevoegen():
+        print("Type regels gescheiden door enters: ")
+
+        regels = []
+        i = 0
+
+        while True:
+            regel = input(str(i) + ". ")
+            if regel != "":
+                regels.append(regel)
+            else:
+                break
+            i += 1
+
+        file = open(gekozenfile, 'a')
+
+        for item in regels:
+            file.write(item + "\n")
+        file.close()
+        print("Regels toegevoegd")
+
+    def regelsverwijderen():
+        with open(gekozenfile) as file:
+            bestandsdata = file.read().split('\n')
+
+        print("Geef de nummers van de regels die je wilt verwijderen. (Elk nummer op een nieuwe regel)")
+
+        while True:
+            regelindex = input()
+            if regelindex != "" and regelindex != "q":
+                if regelindex.isdigit():
+                    regelindex = int(regelindex) - 1
+                    if len(bestandsdata) >= regelindex >= 0:
+                        del bestandsdata[regelindex]
+                    else:
+                        print("Die regel bestaat niet!")
+                else:
+                    print("Dat is geen regelnummer")
+            else:
+                print("Regels verwijderd")
+                break
+
+        file = open(gekozenfile, 'w')
+
+        for item in bestandsdata:
+            file.write(item + "\n")
+
+        file.close()
+
+    def fileverwijderen():
+        verwijderenvraag = input("Weet je zeker dat je deze file wilt verwijderen? [y/n]")
+
+        if verwijderenvraag == "y":
+            if os.path.isfile(gekozenfile):
+                os.remove(gekozenfile)
+                print("Je file is verwijderd")
+        elif verwijderenvraag == "n":
+            print("De file word niet verwijderd")
+
+    print("Welke file wil je wijzigen?")
+    gekozenfile = printrecentelijsten(True)
+
+    gekozenactie = input("Kies bewerking: ")
+
+    if gekozenactie == REGELSTOEVOEGEN:
+        regelstoevoegen()
+    elif gekozenactie == REGELSVERWIJDEREN:
+        regelsverwijderen()
+    elif gekozenactie == FILEVERWIJDEREN:
+        fileverwijderen()
+    elif gekozenactie == STOPPEN:
+        main()
+    else:
+        print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
+        main()
 
     main()
 
@@ -163,6 +205,47 @@ def addrecentelijst(naam):
     recentelijstenfile.write(naam + "\n")
 
     recentelijstenfile.close()
+
+
+def printrecentelijsten(openen):
+    leesrecentelijstenfile()
+
+    i = 0
+    for item in recentelijsten:
+        print(str(i + 1) + ". " + recentelijsten[i])
+        i += 1
+
+    if openen:
+        print("Kies een getal van een recente file of geef een filenaam op")
+
+    keuze = input()
+    gekozenfile = ""
+
+    if keuze.isdigit():
+        keuze = int(keuze)
+        keuze -= 1
+
+        with open(recentelijstenfilenaam) as recentelijstenfile:
+            bestandsdata = recentelijstenfile.read().split("\n")
+
+        if keuze <= len(bestandsdata):
+            if keuze >= 0:
+                if os.path.isfile(bestandsdata[keuze]):
+                    gekozenfile = bestandsdata[keuze]
+                else:
+                    print("[ERROR] 404 file not found")
+            else:
+                print("[ERROR] 404 file not found")
+        else:
+            print("[ERROR] 404 file not found")
+
+    elif os.path.isfile(keuze):
+        gekozenfile = keuze
+
+    else:
+        print("We hebben je keuze niet kunnen vinden")
+
+    return gekozenfile
 
 
 def leesrecentelijstenfile():
