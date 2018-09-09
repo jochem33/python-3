@@ -4,14 +4,22 @@ EXTENSIE = '.wrd'
 MAX_WOORDLENGTE = 20
 SCHEIDER = '='
 SCHERMBREEDTE = 80
+HALVESCHERMBREEDTE = SCHERMBREEDTE / 2
 SCHERMHOOGTE = 40
-STANDAARD_LIJST = 'EN-NED'
+
+
+# tekens voor UI
+ZIJKANT = "|"
+ONDERKANT = "="
+BOVENKANT = "="
+
 
 # acties:
 NIEUWE_LIJST = 'n'
 OVERHOREN = 'o'
 WIJZIGEN = "e"
 STOPPEN = 'q'
+
 
 # acties in edit menu
 REGELSVERWIJDEREN = "d"
@@ -24,8 +32,10 @@ recentelijsten = []
 
 
 def main():
-    gekozenactie = input("Kies actie: ")
+    printheader()
 
+    printfooter()
+    gekozenactie = input("Kies actie: ")
     if gekozenactie == NIEUWE_LIJST:
         nieuwelijst()
     elif gekozenactie == OVERHOREN:
@@ -175,6 +185,8 @@ def wijzigen():
         elif verwijderenvraag == "n":
             print("De file word niet verwijderd")
 
+    # bewerking kiezen
+
     print("Welke file wil je wijzigen?")
     gekozenfile = printrecentelijsten(True)
 
@@ -260,6 +272,16 @@ def leesrecentelijstenfile():
         recentelijstenfile.close()
     else:
         print("Geen recente lijsten gevonden")
+
+
+def printheader():
+    header = str(BOVENKANT * SCHERMBREEDTE) + "\n{0:<{1}}{2:>{3}}"
+    print(header.format(ZIJKANT, int(HALVESCHERMBREEDTE), ZIJKANT, int(HALVESCHERMBREEDTE)))
+
+
+def printfooter():
+    footer = "{0:<{1}}{2:>{3}}\n" + str(ONDERKANT * SCHERMBREEDTE)
+    print(footer.format(ZIJKANT, int(HALVESCHERMBREEDTE), ZIJKANT, int(HALVESCHERMBREEDTE)))
 
 
 leesrecentelijstenfile()
