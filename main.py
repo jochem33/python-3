@@ -5,8 +5,8 @@ MAX_WOORDLENGTE = 20
 SCHEIDER = '='
 SCHERMBREEDTE = 80
 HALVESCHERMBREEDTE = SCHERMBREEDTE / 2
-SCHERMHOOGTE = 40
-
+SCHERMHOOGTE = 15
+menuregels = 0
 
 # tekens voor UI
 ZIJKANT = "|"
@@ -32,10 +32,22 @@ recentelijsten = []
 
 
 def main():
+    clear()
+
     printheader()
+
+    menuregel("Welkom bij Jochem's overhoor programma!")
+    menuregel("Type een van de volgende letters om de bijstaande actie uit te voeren:")
+    menuregel("Nieuwe lijst: " + NIEUWE_LIJST)
+    menuregel("Overhoren: " + OVERHOREN)
+    menuregel("Wijzigen: " + WIJZIGEN)
+    menuregel("Stoppen (Kan altijd gebruikt worden): " + STOPPEN)
 
     printfooter()
     gekozenactie = input("Kies actie: ")
+
+    clear()
+
     if gekozenactie == NIEUWE_LIJST:
         nieuwelijst()
     elif gekozenactie == OVERHOREN:
@@ -45,7 +57,7 @@ def main():
     elif gekozenactie == STOPPEN:
         afscheid()
     else:
-        print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
+        alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
     if gekozenactie != STOPPEN:
         main()
 
@@ -54,7 +66,9 @@ def nieuwelijst():
     doorgaan = True
     woordenlijst = {}
 
-    print("type woorden gescheiden door \"=\" (geen spaties!)")
+    printheader()
+    menuregel("type woorden gescheiden door \"=\" (geen spaties!)")
+    printfooter()
 
     while doorgaan:
         nogsplitten = input()
@@ -68,8 +82,14 @@ def nieuwelijst():
         else:
             print("Je hebt iets niet goed opgegeven!")
 
-    print(
-        "Onder welke naam wil je de lijst opslaan? \nType \"NEE\" om de lijst niet op te slaan \nVergeet niet " + EXTENSIE + " acter je filenaam te zetten!")
+    clear()
+
+    printheader()
+    menuregel("Onder welke naam wil je de lijst opslaan?")
+    menuregel("Type \"NEE\" om de lijst niet op te slaan ")
+    menuregel("Vergeet niet " + EXTENSIE + " acter je filenaam te zetten!")
+    printfooter()
+
     filename = input("naam: ")
     if filename != "NEE":
         file = open(filename, 'w')
@@ -80,18 +100,25 @@ def nieuwelijst():
 
         file.close()
         addrecentelijst(filename)
-        print("Je nieuwe lijst is opgeslagen als " + filename)
+        alert("Je nieuwe lijst is opgeslagen als " + filename)
+    else:
+        alert("Je file word niet opgeslagen!")
 
     main()
 
 
 def overhoor():
-    print("Welke lijst wil je laten overhoren?\n")
+    printheader()
 
-    gekozenfile = printrecentelijsten(True)
+    menuregel("Welke lijst wil je laten overhoren?")
+    printrecentelijsten()
+
+    printfooter()
+
+    gekozenfile = openrecentelijsten()
 
     if gekozenfile != "":
-        print("We gaan nu " + gekozenfile + " overhoren.")
+        alert("We gaan nu " + gekozenfile + " overhoren.")
 
         overhoordict = {}
         goed = 0
@@ -106,20 +133,27 @@ def overhoor():
                 overhoordict[woord1] = woord2
 
         for key in overhoordict:
-            print("\n" * 2)
+            clear()
+            printheader()
+            menuregel("Vertaal: ")
+            menuregel(key)
+            menuregel("")
+            menuregel("Goed: " + str(goed))
+            menuregel("Fout: " + str(fout))
+            menuregel("Nog te gaan: " + str(len(overhoordict.keys()) - goed - fout))
+            printfooter()
             geradenwoord = input(key + " = ")
-            print("\n" * 2)
 
             if geradenwoord == overhoordict[key]:
-                print("Dat is goed!")
+                alert("Dat is goed!")
                 goed += 1
             else:
-                print("Helaas! Dat is fout, het moest zijn: " + overhoordict[key])
+                alert("Helaas! Dat is fout, het moest zijn: " + overhoordict[key])
                 fout += 1
 
         totaalaantalvragen = goed + fout
         score = goed / totaalaantalvragen * 100
-        print("Je hebt " + str(score) + "% goed!")
+        alert("Je hebt " + str(score) + "% goed!")
 
     main()
 
@@ -127,7 +161,10 @@ def overhoor():
 def wijzigen():
 
     def regelstoevoegen():
-        print("Type regels gescheiden door enters: ")
+        clear()
+        printheader()
+        menuregel("Type regels gescheiden door enters: ")
+        printfooter()
 
         regels = []
         i = 0
@@ -145,13 +182,18 @@ def wijzigen():
         for item in regels:
             file.write(item + "\n")
         file.close()
-        print("Regels toegevoegd")
+
+        alert("Regels toegevoegd!")
 
     def regelsverwijderen():
         with open(gekozenfile) as file:
             bestandsdata = file.read().split('\n')
 
-        print("Geef de nummers van de regels die je wilt verwijderen. (Elk nummer op een nieuwe regel)")
+        clear()
+        printheader()
+        menuregel("Geef de nummers van de regels die je wilt verwijderen.")
+        menuregel("(Elk nummer op een nieuwe regel)")
+        printfooter()
 
         while True:
             regelindex = input()
@@ -165,7 +207,7 @@ def wijzigen():
                 else:
                     print("Dat is geen regelnummer")
             else:
-                print("Regels verwijderd")
+                alert("Regels verwijderd!")
                 break
 
         file = open(gekozenfile, 'w')
@@ -176,33 +218,56 @@ def wijzigen():
         file.close()
 
     def fileverwijderen():
-        verwijderenvraag = input("Weet je zeker dat je deze file wilt verwijderen? [y/n]")
+        clear()
+        printheader()
+        menuregel("Weet je zeker dat je deze file wilt verwijderen?")
+        printfooter()
+        verwijderenvraag = input("[y/n]")
 
         if verwijderenvraag == "y":
             if os.path.isfile(gekozenfile):
                 os.remove(gekozenfile)
-                print("Je file is verwijderd")
+                alert("Je file is verwijderd!")
         elif verwijderenvraag == "n":
-            print("De file word niet verwijderd")
+            alert("De file word niet verwijderd")
+        else:
+            alert("Dat is geen \"y\" of \"n\"!")
 
     # bewerking kiezen
 
-    print("Welke file wil je wijzigen?")
-    gekozenfile = printrecentelijsten(True)
+    printheader()
+    menuregel("Welke file wil je wijzigen?")
+    printrecentelijsten()
+    printfooter()
+    gekozenfile = openrecentelijsten()
 
-    gekozenactie = input("Kies bewerking: ")
+    clear()
 
-    if gekozenactie == REGELSTOEVOEGEN:
-        regelstoevoegen()
-    elif gekozenactie == REGELSVERWIJDEREN:
-        regelsverwijderen()
-    elif gekozenactie == FILEVERWIJDEREN:
-        fileverwijderen()
-    elif gekozenactie == STOPPEN:
-        main()
+    if "" != gekozenfile:
+        printheader()
+
+        menuregel("Je kan een van de volgende bewerkingen doen: ")
+        menuregel("Regels toevoegen: " + REGELSTOEVOEGEN)
+        menuregel("Regels verwijderen: " + REGELSVERWIJDEREN)
+        menuregel("File verwijderen: " + FILEVERWIJDEREN)
+
+        printfooter()
+
+        gekozenactie = input("Kies bewerking: ")
+
+        if gekozenactie == REGELSTOEVOEGEN:
+            regelstoevoegen()
+        elif gekozenactie == REGELSVERWIJDEREN:
+            regelsverwijderen()
+        elif gekozenactie == FILEVERWIJDEREN:
+            fileverwijderen()
+        elif gekozenactie == STOPPEN:
+            main()
+        else:
+            print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
+            main()
     else:
-        print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
-        main()
+        alert("[ERROR] 404 file not found")
 
     main()
 
@@ -219,17 +284,14 @@ def addrecentelijst(naam):
     recentelijstenfile.close()
 
 
-def printrecentelijsten(openen):
+def printrecentelijsten():
     leesrecentelijstenfile()
 
-    i = 0
-    for item in recentelijsten:
-        print(str(i + 1) + ". " + recentelijsten[i])
-        i += 1
+    for i in range(len(recentelijsten)):
+        menuregel(str(i + 1) + ". " + recentelijsten[i - 1])
 
-    if openen:
-        print("Kies een getal van een recente file of geef een filenaam op")
 
+def openrecentelijsten():
     keuze = input()
     gekozenfile = ""
 
@@ -245,17 +307,17 @@ def printrecentelijsten(openen):
                 if os.path.isfile(bestandsdata[keuze]):
                     gekozenfile = bestandsdata[keuze]
                 else:
-                    print("[ERROR] 404 file not found")
+                    alert("[ERROR] 404 file not found")
             else:
-                print("[ERROR] 404 file not found")
+                alert("[ERROR] 404 file not found")
         else:
-            print("[ERROR] 404 file not found")
+            alert("[ERROR] 404 file not found")
 
     elif os.path.isfile(keuze):
         gekozenfile = keuze
 
     else:
-        print("We hebben je keuze niet kunnen vinden")
+        alert("We hebben je keuze niet kunnen vinden")
 
     return gekozenfile
 
@@ -267,11 +329,11 @@ def leesrecentelijstenfile():
         recentelijstenfile = open(recentelijstenfilenaam)
 
         for line in recentelijstenfile:
-            recentelijsten.append(line)
+            recentelijsten.append(line.strip("\n"))
 
         recentelijstenfile.close()
     else:
-        print("Geen recente lijsten gevonden")
+        menuregel("Geen recente lijsten gevonden")
 
 
 def printheader():
@@ -280,8 +342,33 @@ def printheader():
 
 
 def printfooter():
+    for i in range(SCHERMHOOGTE - menuregels - 4):
+        zijkant = "{0:<{1}}{2:>{3}}"
+        print(zijkant.format(ZIJKANT, int(HALVESCHERMBREEDTE), ZIJKANT, int(HALVESCHERMBREEDTE)))
     footer = "{0:<{1}}{2:>{3}}\n" + str(ONDERKANT * SCHERMBREEDTE)
     print(footer.format(ZIJKANT, int(HALVESCHERMBREEDTE), ZIJKANT, int(HALVESCHERMBREEDTE)))
+
+
+def menuregel(tekst):
+    regel = "{0:<2}{1:" + str(SCHERMBREEDTE - 3) + "}{2}"
+    print(regel.format(ZIJKANT, tekst, ZIJKANT))
+    global menuregels
+    menuregels += 1
+    return regel
+
+
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    global menuregels
+    menuregels = 0
+
+
+def alert(tekst):
+    clear()
+    printheader()
+    menuregel(tekst)
+    printfooter()
+    input("Type ENTER om door te gaan")
 
 
 leesrecentelijstenfile()
