@@ -29,6 +29,7 @@ REGELSTOEVOEGEN = "a"
 
 recentelijstenfilenaam = "recentelijsten.lists"
 recentelijsten = []
+recentefileaanwezig = False
 
 
 def main():
@@ -267,7 +268,7 @@ def wijzigen():
             print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
             main()
     else:
-        alert("[ERROR] 404 file not found")
+        alert("[ERROR] 404 file not found (0)")
 
     main()
 
@@ -294,30 +295,36 @@ def printrecentelijsten():
 def openrecentelijsten():
     keuze = input()
     gekozenfile = ""
+    print(keuze)
 
-    if keuze.isdigit():
-        keuze = int(keuze)
-        keuze -= 1
-
+    if os.path.isfile(recentelijstenfilenaam):
+        global recentefileaanwezig
+        recentefileaanwezig= True
         with open(recentelijstenfilenaam) as recentelijstenfile:
             bestandsdata = recentelijstenfile.read().split("\n")
 
-        if keuze <= len(bestandsdata):
-            if keuze >= 0:
-                if os.path.isfile(bestandsdata[keuze]):
-                    gekozenfile = bestandsdata[keuze]
+        if keuze.isdigit():
+            keuze = int(keuze)
+            print(str(keuze))
+            keuze -= 1
+            print(str(keuze))
+
+            if keuze <= len(bestandsdata):
+                if keuze >= 0:
+                    if os.path.isfile(bestandsdata[keuze]):
+                        gekozenfile = bestandsdata[keuze]
+                    else:
+                        alert("[ERROR] 404 file not found (1)")
                 else:
-                    alert("[ERROR] 404 file not found")
+                    alert("[ERROR] 404 file not found (2)")
             else:
-                alert("[ERROR] 404 file not found")
-        else:
-            alert("[ERROR] 404 file not found")
+                alert("[ERROR] 404 file not found (3)")
 
-    elif os.path.isfile(keuze):
+    if os.path.isfile(keuze):
         gekozenfile = keuze
-
-    else:
-        alert("We hebben je keuze niet kunnen vinden")
+        if recentefileaanwezig:
+            if not(gekozenfile in bestandsdata) and os.path.isfile(recentelijstenfilenaam):
+                addrecentelijst(gekozenfile)
 
     return gekozenfile
 
