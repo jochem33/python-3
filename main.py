@@ -27,7 +27,7 @@ FILEVERWIJDEREN = "del"
 REGELSTOEVOEGEN = "a"
 
 
-recentelijstenfilenaam = "recentelijsten.lists"
+RECENTELIJSTENFILENAAM = "recentelijsten.lists"
 recentelijsten = []
 recentefileaanwezig = False
 
@@ -75,7 +75,6 @@ def nieuwelijst():
         nogsplitten = input()
         if nogsplitten == STOPPEN:
             doorgaan = False
-            break
         elif nogsplitten != STOPPEN and SCHEIDER in nogsplitten:
             woord1, woord2 = nogsplitten.split(SCHEIDER)
             print(woord1 + ", " + woord2)
@@ -278,7 +277,7 @@ def afscheid():
 
 
 def addrecentelijst(naam):
-    recentelijstenfile = open(recentelijstenfilenaam, 'a')
+    recentelijstenfile = open(RECENTELIJSTENFILENAAM, 'a')
 
     recentelijstenfile.write(naam + "\n")
 
@@ -286,7 +285,17 @@ def addrecentelijst(naam):
 
 
 def printrecentelijsten():
-    leesrecentelijstenfile()
+    recentelijsten.clear()
+
+    if os.path.isfile(RECENTELIJSTENFILENAAM):
+        recentelijstenfile = open(RECENTELIJSTENFILENAAM)
+
+        for line in recentelijstenfile:
+            recentelijsten.append(line.strip("\n"))
+
+        recentelijstenfile.close()
+    else:
+        menuregel("Geen recente lijsten gevonden")
 
     for i in range(len(recentelijsten)):
         menuregel(str(i + 1) + ". " + recentelijsten[i - 1])
@@ -297,10 +306,11 @@ def openrecentelijsten():
     gekozenfile = ""
     print(keuze)
 
-    if os.path.isfile(recentelijstenfilenaam):
-        global recentefileaanwezig
-        recentefileaanwezig= True
-        with open(recentelijstenfilenaam) as recentelijstenfile:
+    global recentefileaanwezig
+
+    if os.path.isfile(RECENTELIJSTENFILENAAM):
+        recentefileaanwezig = True
+        with open(RECENTELIJSTENFILENAAM) as recentelijstenfile:
             bestandsdata = recentelijstenfile.read().split("\n")
 
         if keuze.isdigit():
@@ -323,24 +333,10 @@ def openrecentelijsten():
     if os.path.isfile(keuze):
         gekozenfile = keuze
         if recentefileaanwezig:
-            if not(gekozenfile in bestandsdata) and os.path.isfile(recentelijstenfilenaam):
+            if not(gekozenfile in bestandsdata) and os.path.isfile(RECENTELIJSTENFILENAAM):
                 addrecentelijst(gekozenfile)
 
     return gekozenfile
-
-
-def leesrecentelijstenfile():
-    recentelijsten.clear()
-
-    if os.path.isfile(recentelijstenfilenaam):
-        recentelijstenfile = open(recentelijstenfilenaam)
-
-        for line in recentelijstenfile:
-            recentelijsten.append(line.strip("\n"))
-
-        recentelijstenfile.close()
-    else:
-        menuregel("Geen recente lijsten gevonden")
 
 
 def printheader():
@@ -378,6 +374,6 @@ def alert(tekst):
     input("Type ENTER om door te gaan")
 
 
-leesrecentelijstenfile()
+printrecentelijsten()
 
 main()
