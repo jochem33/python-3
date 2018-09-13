@@ -28,13 +28,60 @@ REGELSTOEVOEGEN = "a"
 
 
 RECENTELIJSTENFILENAAM = "recentelijsten.lists"
-recentelijsten = []
-recentefileaanwezig = False
+
+
+def initialiseerrecente_lijsten():
+    recentelijsten = []
+
+    if os.path.isfile(RECENTELIJSTENFILENAAM):
+        recentelijstenfile = open(RECENTELIJSTENFILENAAM)
+
+        for line in recentelijstenfile:
+            recentelijsten.append(line.strip("\n"))
+
+        recentelijstenfile.close()
+
+    return recentelijsten
+
+
+def printbody():
+    menuregel("Welkom bij Jochem's overhoor programma!")
+    menuregel("Type een van de volgende letters om de bijstaande actie uit te voeren:")
+    menuregel("Nieuwe lijst: " + NIEUWE_LIJST)
+    menuregel("Overhoren: " + OVERHOREN)
+    menuregel("Wijzigen: " + WIJZIGEN)
+    menuregel("Stoppen (Kan altijd gebruikt worden): " + STOPPEN)
+
+
+def leesinvoer():
+    clear()
+    printheader()
+    printbody()
+    printfooter()
+    gekozenactie = input("Kies actie: ")
+    clear()
+    return gekozenactie
 
 
 def main():
-    clear()
+    recentelijsten = initialiseerrecente_lijsten()
+    gekozenactie = leesinvoer()
+    while gekozenactie != STOPPEN:
+        if gekozenactie == NIEUWE_LIJST:
+            nieuwelijst()
+        elif gekozenactie == OVERHOREN:
+            overhoor(recentelijsten)
+        elif gekozenactie == WIJZIGEN:
+            wijzigen(recentelijsten)
+        else:
+            alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
 
+        gekozenactie = leesinvoer()
+
+
+'''def main():
+    recentelijsten = initialiseerRecenteLijsten()
+    clear()
     printheader()
 
     menuregel("Welkom bij Jochem's overhoor programma!")
@@ -49,41 +96,38 @@ def main():
 
     clear()
 
-    if gekozenactie == NIEUWE_LIJST:
-        nieuwelijst()
-    elif gekozenactie == OVERHOREN:
-        overhoor()
-    elif gekozenactie == WIJZIGEN:
-        wijzigen()
-    elif gekozenactie == STOPPEN:
-        afscheid()
-    else:
-        alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
     if gekozenactie != STOPPEN:
-        main()
+        main()'''
 
 
 def nieuwelijst():
-    doorgaan = True
-    woordenlijst = {}
-
     printheader()
-    menuregel("type woorden gescheiden door \"=\" (geen spaties!)")
+    menuregel("type woorden gescheiden door \"=\".")
+    menuregel("Voorbeeld: \"to walk=lopen\"")
     printfooter()
 
-    while doorgaan:
-        nogsplitten = input()
-        if nogsplitten == STOPPEN:
-            doorgaan = False
-        elif nogsplitten != STOPPEN and SCHEIDER in nogsplitten:
+    woordenlijst = woordenvoornieuwelijsttypen()
+
+    savefile(woordenlijst)
+
+
+def woordenvoornieuwelijsttypen():
+    woordenlijst = {}
+    nogsplitten = input()
+    while nogsplitten != STOPPEN and nogsplitten != "":
+        if SCHEIDER in nogsplitten:
             woord1, woord2 = nogsplitten.split(SCHEIDER)
-            print(woord1 + ", " + woord2)
+            # print(woord1 + ", " + woord2)
             woordenlijst[woord1] = woord2
         else:
             print("Je hebt iets niet goed opgegeven!")
+        nogsplitten = input()
 
     clear()
+    return woordenlijst
 
+
+def savefile(woordenlijst):
     printheader()
     menuregel("Onder welke naam wil je de lijst opslaan?")
     menuregel("Type \"NEE\" om de lijst niet op te slaan ")
@@ -104,14 +148,12 @@ def nieuwelijst():
     else:
         alert("Je file word niet opgeslagen!")
 
-    main()
 
-
-def overhoor():
+def overhoor(recentelijsten):
     printheader()
 
     menuregel("Welke lijst wil je laten overhoren?")
-    printrecentelijsten()
+    printrecentelijsten(recentelijsten)
 
     printfooter()
 
@@ -155,10 +197,8 @@ def overhoor():
         score = goed / totaalaantalvragen * 100
         alert("Je hebt " + str(score) + "% goed!")
 
-    main()
 
-
-def wijzigen():
+def wijzigen(recentelijsten):
 
     def regelstoevoegen():
         clear()
@@ -237,7 +277,7 @@ def wijzigen():
 
     printheader()
     menuregel("Welke file wil je wijzigen?")
-    printrecentelijsten()
+    printrecentelijsten(recentelijsten)
     printfooter()
     gekozenfile = openrecentelijsten()
 
@@ -269,8 +309,6 @@ def wijzigen():
     else:
         alert("[ERROR] 404 file not found (0)")
 
-    main()
-
 
 def afscheid():
     print("doei")
@@ -284,7 +322,7 @@ def addrecentelijst(naam):
     recentelijstenfile.close()
 
 
-def printrecentelijsten():
+def printrecentelijsten(recentelijsten):
     recentelijsten.clear()
 
     if os.path.isfile(RECENTELIJSTENFILENAAM):
@@ -373,7 +411,5 @@ def alert(tekst):
     printfooter()
     input("Type ENTER om door te gaan")
 
-
-printrecentelijsten()
 
 main()
