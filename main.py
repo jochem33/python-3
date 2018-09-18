@@ -198,120 +198,122 @@ def overhoor(recentelijsten):
         alert("Je hebt " + str(score) + "% goed!")
 
 
-def wijzigen(recentelijsten):
+def regelstoevoegen(gekozenfile):
+    clear()
+    printheader()
+    menuregel("Type regels gescheiden door enters: ")
+    printfooter()
 
-    def regelstoevoegen():
-        clear()
-        printheader()
-        menuregel("Type regels gescheiden door enters: ")
-        printfooter()
+    regels = []
+    i = 0
 
-        regels = []
-        i = 0
-
-        while True:
-            regel = input(str(i) + ". ")
-            if regel != "":
-                regels.append(regel)
-            else:
-                break
-            i += 1
-
-        file = open(gekozenfile, 'a')
-
-        for item in regels:
-            file.write(item + "\n")
-        file.close()
-
-        alert("Regels toegevoegd!")
-
-    def regelsverwijderen():
-        with open(gekozenfile) as file:
-            bestandsdata = file.read().split('\n')
-
-        clear()
-        printheader()
-        menuregel("Geef de nummers van de regels die je wilt verwijderen.")
-        menuregel("(Elk nummer op een nieuwe regel)")
-        printfooter()
-
-        while True:
-            regelindex = input()
-            if regelindex != "" and regelindex != "q":
-                if regelindex.isdigit():
-                    regelindex = int(regelindex) - 1
-                    if len(bestandsdata) >= regelindex >= 0:
-                        del bestandsdata[regelindex]
-                    else:
-                        print("Die regel bestaat niet!")
-                else:
-                    print("Dat is geen regelnummer")
-            else:
-                alert("Regels verwijderd!")
-                break
-
-        file = open(gekozenfile, 'w')
-
-        for item in bestandsdata:
-            file.write(item + "\n")
-
-        file.close()
-
-    def fileverwijderen():
-        clear()
-        printheader()
-        menuregel("Weet je zeker dat je deze file wilt verwijderen?")
-        printfooter()
-        verwijderenvraag = input("[y/n]")
-
-        if verwijderenvraag == "y":
-            if os.path.isfile(gekozenfile):
-                os.remove(gekozenfile)
-                alert("Je file is verwijderd!")
-        elif verwijderenvraag == "n":
-            alert("De file word niet verwijderd")
+    while True:
+        regel = input(str(i) + ". ")
+        if regel != "":
+            regels.append(regel)
         else:
-            alert("Dat is geen \"y\" of \"n\"!")
+            break
+        i += 1
 
-    # bewerking kiezen
+    file = open(gekozenfile, 'a')
 
+    for item in regels:
+        file.write(item + "\n")
+    file.close()
+
+    alert("Regels toegevoegd!")
+
+
+def regelsverwijderen(gekozenfile):
+    with open(gekozenfile) as file:
+        bestandsdata = file.read().split('\n')
+
+    clear()
+    printheader()
+    menuregel("Geef de nummers van de regels die je wilt verwijderen.")
+    menuregel("(Elk nummer op een nieuwe regel)")
+    printfooter()
+
+    while True:
+        regelindex = input()
+        if regelindex != "" and regelindex != "q":
+            if regelindex.isdigit():
+                regelindex = int(regelindex) - 1
+                if len(bestandsdata) >= regelindex >= 0:
+                    del bestandsdata[regelindex]
+                else:
+                    print("Die regel bestaat niet!")
+            else:
+                print("Dat is geen regelnummer")
+        else:
+            alert("Regels verwijderd!")
+            break
+
+    file = open(gekozenfile, 'w')
+
+    for item in bestandsdata:
+        file.write(item + "\n")
+
+    file.close()
+
+
+def fileverwijderen(gekozenfile):
+    clear()
+    printheader()
+    menuregel("Weet je zeker dat je deze file wilt verwijderen?")
+    printfooter()
+    verwijderenvraag = input("[y/n]")
+
+    if verwijderenvraag == "y":
+        if os.path.isfile(gekozenfile):
+            os.remove(gekozenfile)
+            alert("Je file is verwijderd!")
+    elif verwijderenvraag == "n":
+        alert("De file word niet verwijderd")
+    else:
+        alert("Dat is geen \"y\" of \"n\"!")
+
+
+def printwijzigentekst(recentelijsten):
     printheader()
     menuregel("Welke file wil je wijzigen?")
     printrecentelijsten(recentelijsten)
     printfooter()
     gekozenfile = openrecentelijsten()
+    return gekozenfile
+
+
+def printbewerkingen():
+    printheader()
+
+    menuregel("Je kan een van de volgende bewerkingen doen: ")
+    menuregel("Regels toevoegen: " + REGELSTOEVOEGEN)
+    menuregel("Regels verwijderen: " + REGELSVERWIJDEREN)
+    menuregel("File verwijderen: " + FILEVERWIJDEREN)
+
+    printfooter()
+
+
+def wijzigen(recentelijsten):
+    gekozenfile = printwijzigentekst(recentelijsten)
 
     clear()
 
-    if "" != gekozenfile:
-        printheader()
+    printbewerkingen()
+    gekozenactie = input("Kies bewerking: ")
 
-        menuregel("Je kan een van de volgende bewerkingen doen: ")
-        menuregel("Regels toevoegen: " + REGELSTOEVOEGEN)
-        menuregel("Regels verwijderen: " + REGELSVERWIJDEREN)
-        menuregel("File verwijderen: " + FILEVERWIJDEREN)
-
-        printfooter()
-
-        gekozenactie = input("Kies bewerking: ")
-
-        if gekozenactie == REGELSTOEVOEGEN:
-            regelstoevoegen()
-        elif gekozenactie == REGELSVERWIJDEREN:
-            regelsverwijderen()
-        elif gekozenactie == FILEVERWIJDEREN:
-            fileverwijderen()
-        elif gekozenactie == STOPPEN:
-            main()
-        else:
-            print("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
-            main()
-    else:
-        alert("[ERROR] 404 file not found (0)")
+    if gekozenactie == REGELSTOEVOEGEN:
+        regelstoevoegen(gekozenfile)
+    elif gekozenactie == REGELSVERWIJDEREN:
+        regelsverwijderen(gekozenfile)
+    elif gekozenactie == FILEVERWIJDEREN:
+        fileverwijderen(gekozenfile)
+    elif gekozenactie != STOPPEN:
+        alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer. ")
 
 
 def afscheid():
-    print("doei")
+    alert("doei")
 
 
 def addrecentelijst(naam):
@@ -344,7 +346,7 @@ def openrecentelijsten():
     gekozenfile = ""
     print(keuze)
 
-    global recentefileaanwezig
+    recentefileaanwezig = False
 
     if os.path.isfile(RECENTELIJSTENFILENAAM):
         recentefileaanwezig = True
