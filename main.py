@@ -13,19 +13,16 @@ ZIJKANT = "|"
 ONDERKANT = "="
 BOVENKANT = "="
 
-
 # acties:
 NIEUWE_LIJST = 'n'
 OVERHOREN = 'o'
 WIJZIGEN = "e"
 STOPPEN = 'q'
 
-
 # acties in edit menu
 REGELSVERWIJDEREN = "d"
 FILEVERWIJDEREN = "del"
 REGELSTOEVOEGEN = "a"
-
 
 RECENTELIJSTENFILENAAM = "recentelijsten.lists"
 
@@ -34,12 +31,8 @@ def initialiseerrecente_lijsten():
     recentelijsten = []
 
     if os.path.isfile(RECENTELIJSTENFILENAAM):
-        recentelijstenfile = open(RECENTELIJSTENFILENAAM)
-
-        for line in recentelijstenfile:
-            recentelijsten.append(line.strip("\n"))
-
-        recentelijstenfile.close()
+        with open(RECENTELIJSTENFILENAAM) as recentelijstenlijstfile:
+            recentelijsten = recentelijstenlijstfile.read().split('\n')
 
     return recentelijsten
 
@@ -97,12 +90,11 @@ def nieuwelijst():
 def woordenvoornieuwelijsttypen():
     woordenlijst = {}
     nogsplitten = input()
-    while nogsplitten != STOPPEN and nogsplitten != "":
-        if SCHEIDER in nogsplitten:
+    while nogsplitten not in ["", "q"]:
+        try:
             woord1, woord2 = nogsplitten.split(SCHEIDER)
-            # print(woord1 + ", " + woord2)
             woordenlijst[woord1] = woord2
-        else:
+        except ValueError:
             print("Je hebt iets niet goed opgegeven!")
         nogsplitten = input()
 
@@ -114,11 +106,15 @@ def savefile(woordenlijst):
     printheader()
     menuregel("Onder welke naam wil je de lijst opslaan?")
     menuregel("Type \"NEE\" om de lijst niet op te slaan ")
-    menuregel("Vergeet niet " + EXTENSIE + " acter je filenaam te zetten!")
     printfooter()
 
     filename = input("naam: ")
-    if filename != "NEE":
+
+    if filename == "NEE":
+        alert("Je file word niet opgeslagen!")
+    else:
+        filename = filename + EXTENSIE
+
         file = open(filename, 'w')
 
         for key in woordenlijst:
@@ -126,41 +122,42 @@ def savefile(woordenlijst):
             file.write("\n")
 
         file.close()
+
         addrecentelijst(filename)
         alert("Je nieuwe lijst is opgeslagen als " + filename)
-    else:
-        alert("Je file word niet opgeslagen!")
 
 
 def openoverhoorfile(gekozenfile):
     with open(gekozenfile) as overhoorfile:
         bestandsdata = overhoorfile.read().split('\n')
 
-    return bestandsdata
-
-
-def overhoorloop(gekozenfile, bestandsdata):
-    alert("We gaan nu " + gekozenfile + " overhoren.")
-
     overhoordict = {}
-    goed = 0
-    fout = 0
-
     for item in bestandsdata:
-        if not item == '':
+        if not item == "":
             woord1, woord2 = item.split("=")
             overhoordict[woord1] = woord2
 
+    return overhoordict
+
+
+def printoverhoorinstructiesvertalen(key, goed, fout, overhoordict):
+    clear()
+    printheader()
+    menuregel("Vertaal: ")
+    menuregel(key)
+    menuregel("")
+    menuregel("Goed: " + str(goed))
+    menuregel("Fout: " + str(fout))
+    menuregel("Nog te gaan: " + str(len(overhoordict.keys()) - goed - fout))
+    printfooter()
+
+
+def overhoorloop(overhoordict):
+    goed = 0
+    fout = 0
+
     for key in overhoordict:
-        clear()
-        printheader()
-        menuregel("Vertaal: ")
-        menuregel(key)
-        menuregel("")
-        menuregel("Goed: " + str(goed))
-        menuregel("Fout: " + str(fout))
-        menuregel("Nog te gaan: " + str(len(overhoordict.keys()) - goed - fout))
-        printfooter()
+        printoverhoorinstructiesvertalen(key, goed, fout, overhoordict)
         geradenwoord = input(key + " = ")
 
         if geradenwoord == overhoordict[key]:
@@ -179,7 +176,7 @@ def berekenscore(goed, fout):
     alert("Je hebt " + str(score) + "% goed!")
 
 
-def overhoor(recentelijsten):
+def printoverhoorinstructies(recentelijsten):
     printheader()
 
     menuregel("Welke lijst wil je laten overhoren?")
@@ -188,10 +185,17 @@ def overhoor(recentelijsten):
     printfooter()
 
     gekozenfile = openrecentelijsten()
+    return gekozenfile
+
+
+def overhoor(recentelijsten):
+    gekozenfile = printoverhoorinstructies(recentelijsten)
 
     if gekozenfile != "":
-        bestandsdata = openoverhoorfile(gekozenfile)
-        goed, fout = overhoorloop(gekozenfile, bestandsdata)
+        overhoordict = openoverhoorfile(gekozenfile)
+
+        alert("We gaan nu " + gekozenfile + " overhoren.")
+        goed, fout = overhoorloop(overhoordict)
 
         berekenscore(goed, fout)
 
@@ -205,14 +209,10 @@ def regelstoevoegen(gekozenfile):
     regels = []
     i = 0
 
-    klaar = False
-    while not klaar:
+    regel = input(str(i) + ". ")
+    while regel not in ["", "q"]:
+        regels.append(regel)
         regel = input(str(i) + ". ")
-        if regel != "":
-            regels.append(regel)
-        else:
-            klaar = True
-        i += 1
 
     file = open(gekozenfile, 'a')
 
@@ -224,21 +224,32 @@ def regelstoevoegen(gekozenfile):
 
 
 def vraagomverwijderregels(regels):
-    doorgaan = True
-    while doorgaan:
+    regelindex = input()
+    while regelindex not in ["", "q"]:
+        try:
+            regelindex = int(regelindex) - 1
+            del regels[regelindex]
+        except ValueError:
+            print("geen nummer")
+        except IndexError:
+            print("regel bestaat niet")
         regelindex = input()
-        if regelindex != "" and regelindex != "q":
-            if regelindex.isdigit():
-                regelindex = int(regelindex) - 1
-                if len(regels) >= regelindex >= 0:
-                    del regels[regelindex]
-                else:
-                    print("Die regel bestaat niet!")
-            else:
-                print("Dat is geen regelnummer")
-        else:
-            alert("Regels verwijderd!")
-            doorgaan = False
+
+    # doorgaan = True
+    # while doorgaan:
+    #     regelindex = input()
+    #     if regelindex != "" and regelindex != "q":
+    #         if regelindex.isdigit():
+    #             regelindex = int(regelindex) - 1
+    #             if len(regels) >= regelindex >= 0:
+    #                 del regels[regelindex]
+    #             else:
+    #                 print("Die regel bestaat niet!")
+    #         else:
+    #             print("Dat is geen regelnummer")
+    #     else:
+    #         alert("Regels verwijderd!")
+    #         doorgaan = False
 
     return regels
 
@@ -270,10 +281,9 @@ def fileverwijderen(gekozenfile):
     printfooter()
     verwijderenvraag = input("[y/n]")
 
-    if verwijderenvraag == "y":
-        if os.path.isfile(gekozenfile):
-            os.remove(gekozenfile)
-            alert("Je file is verwijderd!")
+    if verwijderenvraag == "y" and os.path.isfile(gekozenfile):
+        os.remove(gekozenfile)
+        alert("Je file is verwijderd!")
     elif verwijderenvraag == "n":
         alert("De file word niet verwijderd")
     else:
@@ -351,24 +361,19 @@ def openrecentelijstennummer(keuze, recentelijstenlijst):
     keuze = int(keuze)
     keuze -= 1
 
-    if keuze <= len(recentelijstenlijst):
-        if keuze >= 0:
-            if os.path.isfile(recentelijstenlijst[keuze]):
-                gekozenfile = recentelijstenlijst[keuze]
-
-                return gekozenfile
-            else:
-                alert("[ERROR] 404 file not found (1)")
-        else:
-            alert("[ERROR] 404 file not found (2)")
-    else:
-        alert("[ERROR] 404 file not found (3)")
+    try:
+        gekozenfile = recentelijstenlijst[keuze]
+        return gekozenfile
+    except ValueError:
+        alert("[ERROR] File not found")
+    except IndexError:
+        alert("[ERROR] regel bestaat niet")
 
 
 def openrecentelijstenpath(keuze, recentelijstenlijst, recentefileaanwezig):
     gekozenfile = keuze
     if recentefileaanwezig:
-        if not(gekozenfile in recentelijstenlijst) and os.path.isfile(RECENTELIJSTENFILENAAM):
+        if not (gekozenfile in recentelijstenlijst) and os.path.isfile(RECENTELIJSTENFILENAAM):
             addrecentelijst(gekozenfile)
 
     return gekozenfile
@@ -379,13 +384,16 @@ def openrecentelijsten():
     gekozenfile = ""
     print(keuze)
 
+    if not os.path.isfile(RECENTELIJSTENFILENAAM):
+        return
+
     if os.path.isfile(RECENTELIJSTENFILENAAM):
         recentefileaanwezig = True
         with open(RECENTELIJSTENFILENAAM) as recentelijstenfile:
             recentelijstenlijst = recentelijstenfile.read().split("\n")
 
         if keuze.isdigit():
-            gekozenfile = openrecentelijstennummer()
+            gekozenfile = openrecentelijstennummer(keuze, recentelijstenlijst)
 
         if os.path.isfile(keuze):
             gekozenfile = openrecentelijstenpath(keuze, recentelijstenlijst, recentefileaanwezig)
