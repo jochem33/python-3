@@ -127,7 +127,7 @@ def savefile(woordenlijst):
         alert("Je nieuwe lijst is opgeslagen als " + filename)
 
 
-def openoverhoorfile(gekozenfile):
+def zetoverhoorfileindict(gekozenfile):
     with open(gekozenfile) as overhoorfile:
         bestandsdata = overhoorfile.read().split('\n')
 
@@ -192,7 +192,7 @@ def overhoor(recentelijsten):
     gekozenfile = printoverhoorinstructies(recentelijsten)
 
     if gekozenfile != "":
-        overhoordict = openoverhoorfile(gekozenfile)
+        overhoordict = zetoverhoorfileindict(gekozenfile)
 
         alert("We gaan nu " + gekozenfile + " overhoren.")
         goed, fout = overhoorloop(overhoordict)
@@ -234,22 +234,6 @@ def vraagomverwijderregels(regels):
         except IndexError:
             print("regel bestaat niet")
         regelindex = input()
-
-    # doorgaan = True
-    # while doorgaan:
-    #     regelindex = input()
-    #     if regelindex != "" and regelindex != "q":
-    #         if regelindex.isdigit():
-    #             regelindex = int(regelindex) - 1
-    #             if len(regels) >= regelindex >= 0:
-    #                 del regels[regelindex]
-    #             else:
-    #                 print("Die regel bestaat niet!")
-    #         else:
-    #             print("Dat is geen regelnummer")
-    #     else:
-    #         alert("Regels verwijderd!")
-    #         doorgaan = False
 
     return regels
 
