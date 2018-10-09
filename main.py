@@ -63,19 +63,11 @@ def main():
 
     while gekozenactie != STOPPEN:
         try:
-            mainfunctiesdict[gekozenactie]()
+            mainfunctiesdict[gekozenactie](recentelijsten)
         except KeyError:
             alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
 
         gekozenactie = leesinvoer()
-
-    # while gekozenactie != STOPPEN:
-    #     if gekozenactie == NIEUWE_LIJST:
-    #         nieuwelijst()
-    #     elif gekozenactie == OVERHOREN:
-    #         overhoor(recentelijsten)
-    #     elif gekozenactie == WIJZIGEN:
-    #         wijzigen(recentelijsten)
 
 
 def printnieuwelijstinstructies():
@@ -85,7 +77,7 @@ def printnieuwelijstinstructies():
     printfooter()
 
 
-def nieuwelijst():
+def nieuwelijst(recentelijsten):
     printnieuwelijstinstructies()
 
     woordenlijst = woordenvoornieuwelijsttypen()
@@ -307,15 +299,13 @@ def wijzigen(recentelijsten):
 
     printbewerkingen()
     gekozenactie = input("Kies bewerking: ")
+    wijzigingendict = {REGELSTOEVOEGEN: regelstoevoegen, REGELSVERWIJDEREN: regelsverwijderen, FILEVERWIJDEREN: fileverwijderen}
 
-    if gekozenactie == REGELSTOEVOEGEN:
-        regelstoevoegen(gekozenfile)
-    elif gekozenactie == REGELSVERWIJDEREN:
-        regelsverwijderen(gekozenfile)
-    elif gekozenactie == FILEVERWIJDEREN:
-        fileverwijderen(gekozenfile)
-    elif gekozenactie != STOPPEN:
-        alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer. ")
+    if gekozenactie != STOPPEN:
+        try:
+            wijzigingendict[gekozenactie](gekozenfile)
+        except KeyError:
+            alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer. ")
 
 
 def afscheid():
