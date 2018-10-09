@@ -59,17 +59,23 @@ def leesinvoer():
 def main():
     recentelijsten = initialiseerrecente_lijsten()
     gekozenactie = leesinvoer()
+    mainfunctiesdict = {"n":nieuwelijst, "o":overhoor, "e":wijzigen}
+
     while gekozenactie != STOPPEN:
-        if gekozenactie == NIEUWE_LIJST:
-            nieuwelijst()
-        elif gekozenactie == OVERHOREN:
-            overhoor(recentelijsten)
-        elif gekozenactie == WIJZIGEN:
-            wijzigen(recentelijsten)
-        else:
+        try:
+            mainfunctiesdict[gekozenactie]()
+        except KeyError:
             alert("Sorry, we hebben je niet helemaal begrepen, probeer het nog een keer: ")
 
         gekozenactie = leesinvoer()
+
+    # while gekozenactie != STOPPEN:
+    #     if gekozenactie == NIEUWE_LIJST:
+    #         nieuwelijst()
+    #     elif gekozenactie == OVERHOREN:
+    #         overhoor(recentelijsten)
+    #     elif gekozenactie == WIJZIGEN:
+    #         wijzigen(recentelijsten)
 
 
 def printnieuwelijstinstructies():
