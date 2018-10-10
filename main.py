@@ -27,12 +27,30 @@ REGELSTOEVOEGEN = "a"
 RECENTELIJSTENFILENAAM = "recentelijsten.lists"
 
 
+def readfile(path):
+    with open(path) as file:
+        filelines = file.read().split("\n")
+
+    return filelines
+
+
+def writefile(path, lines, writeoradd):
+    file = open(path, writeoradd)
+
+    for line in lines:
+        file.write(line)
+        file.write("\n")
+
+    file.close()
+
+
 def initialiseerrecente_lijsten():
     recentelijsten = []
 
-    if os.path.isfile(RECENTELIJSTENFILENAAM):
-        with open(RECENTELIJSTENFILENAAM) as recentelijstenlijstfile:
-            recentelijsten = recentelijstenlijstfile.read().split('\n')
+    try:
+        recentelijsten = readfile(RECENTELIJSTENFILENAAM)
+    except FileNotFoundError:
+        pass
 
     return recentelijsten
 
@@ -113,13 +131,11 @@ def savefile(woordenlijst):
     else:
         filename = filename + EXTENSIE
 
-        file = open(filename, 'w')
-
         for key in woordenlijst:
-            file.write(key + "=" + woordenlijst[key])
-            file.write("\n")
+            lineskey + "=" + woordenlijst[key])
+            lines.write("\n")
 
-        file.close()
+        writefile(filename, key, "w")
 
         addrecentelijst(filename)
         alert("Je nieuwe lijst is opgeslagen als " + filename)
@@ -350,11 +366,10 @@ def openrecentelijstennummer(keuze, recentelijstenlijst):
         alert("[ERROR] regel bestaat niet")
 
 
-def openrecentelijstenpath(keuze, recentelijstenlijst, recentefileaanwezig):
+def openrecentelijstenpath(keuze, recentelijstenlijst):
     gekozenfile = keuze
-    if recentefileaanwezig:
-        if not (gekozenfile in recentelijstenlijst) and os.path.isfile(RECENTELIJSTENFILENAAM):
-            addrecentelijst(gekozenfile)
+    if gekozenfile not in recentelijstenlijst:
+        addrecentelijst(gekozenfile)
 
     return gekozenfile
 
@@ -364,11 +379,7 @@ def openrecentelijsten():
     gekozenfile = ""
     print(keuze)
 
-    if not os.path.isfile(RECENTELIJSTENFILENAAM):
-        return
-
     if os.path.isfile(RECENTELIJSTENFILENAAM):
-        recentefileaanwezig = True
         with open(RECENTELIJSTENFILENAAM) as recentelijstenfile:
             recentelijstenlijst = recentelijstenfile.read().split("\n")
 
@@ -376,7 +387,7 @@ def openrecentelijsten():
             gekozenfile = openrecentelijstennummer(keuze, recentelijstenlijst)
 
         if os.path.isfile(keuze):
-            gekozenfile = openrecentelijstenpath(keuze, recentelijstenlijst, recentefileaanwezig)
+            gekozenfile = openrecentelijstenpath(keuze, recentelijstenlijst)
 
     return gekozenfile
 
