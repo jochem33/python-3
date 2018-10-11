@@ -98,24 +98,24 @@ def printnieuwelijstinstructies():
 def nieuwelijst(recentelijsten):
     printnieuwelijstinstructies()
 
-    woordenlijst = woordenvoornieuwelijsttypen()
+    woordenlijst = nieuweregelstypen()
 
     savefile(woordenlijst)
 
 
-def woordenvoornieuwelijsttypen():
-    woordenlijst = {}
+def nieuweregelstypen():
+    regels = {}
     nogsplitten = input()
     while nogsplitten not in ["", "q"]:
         try:
             woord1, woord2 = nogsplitten.split(SCHEIDER)
-            woordenlijst[woord1] = woord2
+            regels[woord1] = woord2
         except ValueError:
             print("Je hebt iets niet goed opgegeven!")
         nogsplitten = input()
 
     clear()
-    return woordenlijst
+    return regels
 
 
 def savefile(woordenlijst):
@@ -218,14 +218,7 @@ def regelstoevoegen(gekozenfile):
     menuregel("Type regels gescheiden door enters: ")
     printfooter()
 
-    i = 0
-    regels = []
-
-    regel = input(str(i) + ". ")
-    while regel not in ["", "q"]:
-        i += 1
-        regels.append(regel)
-        regel = input(str(i) + ". ")
+    regels = nieuweregelstypen()
 
     writefile(gekozenfile, regels, "a")
 
