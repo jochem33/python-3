@@ -130,20 +130,18 @@ def savefile(woordenlijst):
         alert("Je file word niet opgeslagen!")
     else:
         filename = filename + EXTENSIE
+        lines = []
 
         for key in woordenlijst:
-            lineskey + "=" + woordenlijst[key])
-            lines.write("\n")
+            lines.append(key + "=" + woordenlijst[key])
 
-        writefile(filename, key, "w")
+        writefile(filename, lines, "w")
 
-        addrecentelijst(filename)
         alert("Je nieuwe lijst is opgeslagen als " + filename)
 
 
 def zetoverhoorfileindict(gekozenfile):
-    with open(gekozenfile) as overhoorfile:
-        bestandsdata = overhoorfile.read().split('\n')
+    bestandsdata = readfile(gekozenfile)
 
     overhoordict = {}
     for item in bestandsdata:
@@ -220,19 +218,16 @@ def regelstoevoegen(gekozenfile):
     menuregel("Type regels gescheiden door enters: ")
     printfooter()
 
-    regels = []
     i = 0
+    regels = []
 
     regel = input(str(i) + ". ")
     while regel not in ["", "q"]:
+        i += 1
         regels.append(regel)
         regel = input(str(i) + ". ")
 
-    file = open(gekozenfile, 'a')
-
-    for item in regels:
-        file.write(item + "\n")
-    file.close()
+    writefile(gekozenfile, regels, "a")
 
     alert("Regels toegevoegd!")
 
@@ -253,8 +248,7 @@ def vraagomverwijderregels(regels):
 
 
 def regelsverwijderen(gekozenfile):
-    with open(gekozenfile) as file:
-        regels = file.read().split('\n')
+    regels = readfile(gekozenfile)
 
     clear()
     printheader()
@@ -264,12 +258,7 @@ def regelsverwijderen(gekozenfile):
 
     vraagomverwijderregels(regels)
 
-    file = open(gekozenfile, 'w')
-
-    for item in regels:
-        file.write(item + "\n")
-
-    file.close()
+    writefile(gekozenfile, regels, "w")
 
 
 def fileverwijderen(gekozenfile):
@@ -329,24 +318,15 @@ def afscheid():
 
 
 def addrecentelijst(naam):
-    recentelijstenfile = open(RECENTELIJSTENFILENAAM, 'a')
-
-    recentelijstenfile.write(naam + "\n")
-
-    recentelijstenfile.close()
+    writefile(RECENTELIJSTENFILENAAM, [naam + "\n"], "a")
 
 
 def printrecentelijsten(recentelijsten):
     recentelijsten.clear()
 
-    if os.path.isfile(RECENTELIJSTENFILENAAM):
-        recentelijstenfile = open(RECENTELIJSTENFILENAAM)
-
-        for line in recentelijstenfile:
-            recentelijsten.append(line.strip("\n"))
-
-        recentelijstenfile.close()
-    else:
+    try:
+        recentelijsten = readfile(RECENTELIJSTENFILENAAM)
+    except FileNotFoundError:
         menuregel("Geen recente lijsten gevonden")
 
     for i in range(len(recentelijsten)):
@@ -380,8 +360,7 @@ def openrecentelijsten():
     print(keuze)
 
     if os.path.isfile(RECENTELIJSTENFILENAAM):
-        with open(RECENTELIJSTENFILENAAM) as recentelijstenfile:
-            recentelijstenlijst = recentelijstenfile.read().split("\n")
+        recentelijstenlijst = readfile(RECENTELIJSTENFILENAAM)
 
         if keuze.isdigit():
             gekozenfile = openrecentelijstennummer(keuze, recentelijstenlijst)
