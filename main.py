@@ -95,14 +95,6 @@ def printnieuwelijstinstructies():
     printfooter()
 
 
-def nieuwelijst(recentelijsten):
-    printnieuwelijstinstructies()
-
-    woordenlijst = nieuweregelstypen()
-
-    savefile(woordenlijst)
-
-
 def nieuweregelstypen():
     regels = {}
     nogsplitten = input()
@@ -118,7 +110,15 @@ def nieuweregelstypen():
     return regels
 
 
-def savefile(woordenlijst):
+def nieuwelijst(recentelijsten):
+    printnieuwelijstinstructies()
+
+    woordenlijst = nieuweregelstypen()
+
+    savenewfile(woordenlijst)
+
+
+def savenewfile(woordenlijst):
     printheader()
     menuregel("Onder welke naam wil je de lijst opslaan?")
     menuregel("Type \"NEE\" om de lijst niet op te slaan ")
@@ -152,7 +152,7 @@ def zetoverhoorfileindict(gekozenfile):
     return overhoordict
 
 
-def printoverhoorinstructiesvertalen(key, goed, fout, overhoordict):
+def printoverhoorfilekiezeninstructiesvertalen(key, goed, fout, overhoordict):
     clear()
     printheader()
     menuregel("Vertaal: ")
@@ -169,7 +169,7 @@ def overhoorloop(overhoordict):
     fout = 0
 
     for key in overhoordict:
-        printoverhoorinstructiesvertalen(key, goed, fout, overhoordict)
+        printoverhoorfilekiezeninstructiesvertalen(key, goed, fout, overhoordict)
         geradenwoord = input(key + " = ")
 
         if geradenwoord == overhoordict[key]:
@@ -188,7 +188,7 @@ def berekenscore(goed, fout):
     alert("Je hebt " + str(score) + "% goed!")
 
 
-def printoverhoorinstructies(recentelijsten):
+def printoverhoorfilekiezeninstructies(recentelijsten):
     printheader()
 
     menuregel("Welke lijst wil je laten overhoren?")
@@ -201,7 +201,7 @@ def printoverhoorinstructies(recentelijsten):
 
 
 def overhoor(recentelijsten):
-    gekozenfile = printoverhoorinstructies(recentelijsten)
+    gekozenfile = printoverhoorfilekiezeninstructies(recentelijsten)
 
     if gekozenfile != "":
         overhoordict = zetoverhoorfileindict(gekozenfile)
@@ -358,7 +358,7 @@ def openrecentelijsten():
         if keuze.isdigit():
             gekozenfile = openrecentelijstennummer(keuze, recentelijstenlijst)
 
-        if os.path.isfile(keuze):
+        elif os.path.isfile(keuze):
             gekozenfile = openrecentelijstenpath(keuze, recentelijstenlijst)
 
     return gekozenfile
