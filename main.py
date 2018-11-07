@@ -323,7 +323,8 @@ def printrecentelijsten(recentelijsten):
         menuregel("Geen recente lijsten gevonden")
 
     for i in range(len(recentelijsten)):
-        menuregel(str(i + 1) + ". " + recentelijsten[i - 1])
+        if recentelijsten[i] not in ["", " ", "\n"]:
+            menuregel(str(i + 1) + ". " + recentelijsten[i])
 
 
 def openrecentelijstennummer(keuze, recentelijstenlijst):
