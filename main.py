@@ -50,7 +50,7 @@ def initialiseerrecente_lijsten():
     try:
         recentelijsten = readfile(RECENTELIJSTENFILENAAM)
     except FileNotFoundError:
-        pass
+        writefile(RECENTELIJSTENFILENAAM, recentelijsten, "w")
 
     return recentelijsten
 
